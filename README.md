@@ -1,8 +1,8 @@
 # phionyx-openai-agents
 
-> **Status:** alpha (v0.1.0a1) — TracingProcessor adapter live; 37 tests pass; PyPI publish pending founder authorisation.
+> **Status:** alpha (v0.1.0a1) — live on PyPI. TracingProcessor adapter live; 37 tests pass.
 
-OpenAI Agents SDK tracing bridge for [Phionyx](https://phionyx.ai/runtime-evidence) runtime evidence.
+OpenAI Agents SDK tracing bridge for [Phionyx](https://phionyx.ai) runtime evidence. This package surfaces on [phionyx.ai/narrative-coherence](https://phionyx.ai/narrative-coherence) as one of the framework adapters that turn third-party agent runs into reviewer-runnable evidence.
 
 Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is recorded as a signed, hash-chained envelope entry. Phionyx provides the trust-object substrate above the SDK's own tracing — observability records *what happened*, Phionyx makes it *verifiable*.
 
@@ -17,11 +17,7 @@ pip install phionyx-openai-agents          # core
 pip install "phionyx-openai-agents[sdk]"   # + openai-agents SDK
 ```
 
-Until v0.1.0a1 ships to PyPI, install from source:
-
-```bash
-pip install -e tools/phionyx_openai_agents
-```
+Source: [github.com/halvrenofviryel/phionyx_openai_agents](https://github.com/halvrenofviryel/phionyx_openai_agents).
 
 ## 60-second usage
 
@@ -43,8 +39,8 @@ A complete runnable example (works with or without the SDK installed)
 is in [`examples/quickstart.py`](examples/quickstart.py):
 
 ```bash
-pip install -e tools/phionyx_openai_agents
-python tools/phionyx_openai_agents/examples/quickstart.py
+pip install phionyx-openai-agents
+python examples/quickstart.py
 ```
 
 Expected output (mocked-SDK mode):
@@ -95,13 +91,11 @@ Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together
   (multi-span tree, parent_id chains, error spans, 100-event chain,
   concurrent callbacks, lifecycle edges, JSONL round-trip).
 
-Roadmap beyond v0.1.0a1: PyPI publish (gated on founder authorisation),
-v0.1.0 stable schema lock alongside `phionyx-core` v0.5.0, audit_chain
-promotion into `phionyx_core` for shared use across all companion packages.
+Roadmap beyond v0.1.0a1: v0.1.0 stable schema lock alongside `phionyx-core` v0.5.0 (live as of 2026-05-24); `audit_chain` promotion into `phionyx_core` for shared use across all companion packages (planned for v0.6.0).
 
 ## audit_chain vendoring
 
-This package vendors a copy of `audit_chain.py` from `phionyx-langchain-langgraph`. The two copies differ only in namespace constants (schema id, runtime tag, default audit root, env var, HMAC secret prefix); the canonical-JSON discipline and hash format are identical, so verifiers written once apply to both companion packages. For v0.5.0 stable, `audit_chain` will be promoted into `phionyx_core` and the companion packages will share one canonical implementation.
+This package vendors a copy of `audit_chain.py` from `phionyx-langchain-langgraph`. The two copies differ only in namespace constants (schema id, runtime tag, default audit root, env var, HMAC secret prefix); the canonical-JSON discipline and hash format are identical, so verifiers written once apply to both companion packages. The promotion of `audit_chain` into `phionyx_core` (so the companion packages share one canonical implementation) is on the v0.6.0 roadmap.
 
 ## License
 
@@ -109,9 +103,10 @@ AGPL-3.0-or-later. Commercial dual-license available — contact founder@phionyx
 
 ## See also
 
-- [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) — long-form thesis
-- `phionyx-core` (PyPI) — core envelope schema + Ed25519 signing
-- `phionyx-langchain-langgraph` (PyPI) — LangChain + LangGraph bridge companion
-- `phionyx-mcp-server` (PyPI) — MCP trust boundary companion
-- `phionyx-pipeline-mcp` (PyPI) — agent self-claim gate companion
-- `phionyx-eval-inspect` (PyPI) — UK AISI Inspect bridge companion
+- [phionyx.ai/narrative-coherence](https://phionyx.ai/narrative-coherence) — entry pillar this package surfaces under
+- [phionyx.ai/evidence](https://phionyx.ai/evidence) — Evidence Matrix: every load-bearing claim paired with a reviewer-runnable command
+- [`phionyx-core`](https://pypi.org/project/phionyx-core/) (PyPI) — core envelope schema + Ed25519 signing
+- [`phionyx-langchain-langgraph`](https://github.com/halvrenofviryel/phionyx_langchain_langgraph) (PyPI) — LangChain + LangGraph bridge companion
+- [`phionyx-mcp-server`](https://github.com/halvrenofviryel/phionyx-mcp-server) — MCP trust boundary companion
+- [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) — agent self-claim gate companion
+- [`phionyx-eval-inspect`](https://github.com/halvrenofviryel/phionyx-eval-inspect) — Inspect AI bridge companion (interop-only; no UK AISI endorsement claim)
