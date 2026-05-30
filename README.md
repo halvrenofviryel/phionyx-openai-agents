@@ -10,7 +10,7 @@ Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.githu
 
 Phionyx ships three distinct things, each with its own version line:
 
-- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.7.2**): the deterministic-cognition runtime (46-block canonical pipeline, signed audit chain). It is the reference implementation that scores **L3 + D3** on the Evaluation Standard.
+- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.7.2**): the deterministic runtime (46-block canonical pipeline, signed audit chain). It is the reference implementation that scores **L3 + D3** on the Evaluation Standard.
 - **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (stable **v0.2.0**, alpha **v0.3.0a1**): the self-claim gate that the Claim-Governance ladder (**CG-L0…CG-L5**) rates.
 - **Standard** — [`phionyx-evaluation-standard`](https://github.com/halvrenofviryel/phionyx-evaluation-standard) (**v0.1.1 / v0.2.0** released; v0.3 draft): the vendor-neutral spec defining the L0-L3, D0-D3, and CG-L0…CG-L5 scales.
 
