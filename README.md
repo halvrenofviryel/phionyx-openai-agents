@@ -10,11 +10,11 @@ Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.githu
 
 Phionyx ships three distinct things, each with its own version line:
 
-- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.7.2**): the deterministic runtime (46-block canonical pipeline, signed audit chain). It is the reference implementation that scores **L3 + D3** on the Evaluation Standard.
-- **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (stable **v0.2.0**, alpha **v0.3.0a1**): the self-claim gate that the Claim-Governance ladder (**CG-L0…CG-L5**) rates.
-- **Standard** — [`phionyx-evaluation-standard`](https://github.com/halvrenofviryel/phionyx-evaluation-standard) (**v0.1.1 / v0.2.0** released; v0.3 draft): the vendor-neutral spec defining the L0-L3, D0-D3, and CG-L0…CG-L5 scales.
+- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.8.1**): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is the **reference producer** for AIREP — the first system that emits AIREP records.
+- **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (stable **v0.2.0**, alpha **v0.3.0a1**): the self-claim gate that records each agent self-claim as an AIREP evidence record.
+- **Format** — [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) (**v0.1**, experimental): a vendor-neutral open format for an **AI decision receipt** — one signed, hash-chained, offline-checkable record per runtime decision, readable by anyone and tied to no vendor. It is a *proposed* open format, not a ratified standard.
 
-**This package is an *adapter*** (its own version line: **v0.1.0a1**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the Standard — it does not carry a CG level itself.
+**This package is an *adapter*** (its own version line: **v0.1.0a1**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the AIREP format itself — it produces AIREP-shaped evidence records from SDK traces.
 
 ## Why
 
@@ -101,7 +101,7 @@ Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together
   (multi-span tree, parent_id chains, error spans, 100-event chain,
   concurrent callbacks, lifecycle edges, JSONL round-trip).
 
-Roadmap beyond v0.1.0a1: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (latest v0.7.2); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
+Roadmap beyond v0.1.0a1: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (latest v0.8.1); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
 
 ## audit_chain vendoring
 
@@ -115,9 +115,9 @@ AGPL-3.0-or-later. Commercial dual-license available — contact founder@phionyx
 
 - [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) — entry pillar this package surfaces under
 - [phionyx.ai/evidence](https://phionyx.ai/evidence) — Evidence Matrix: every load-bearing claim paired with a reviewer-runnable command
-- [`phionyx-core`](https://pypi.org/project/phionyx-core/) (PyPI) — core envelope schema + Ed25519 signing (the engine; latest v0.7.2)
-- [`phionyx-evaluation-standard`](https://github.com/halvrenofviryel/phionyx-evaluation-standard) — vendor-neutral L0-L3 / D0-D3 / CG-L0…CG-L5 scales this adapter's outputs are measured against
+- [`phionyx-core`](https://pypi.org/project/phionyx-core/) (PyPI) — core envelope schema + Ed25519 signing (the engine; latest v0.8.1)
+- [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) — vendor-neutral open format for per-decision AI evidence receipts; this adapter's outputs are AIREP-shaped records
 - [`phionyx-langchain-langgraph`](https://github.com/halvrenofviryel/phionyx-langchain-langgraph) — LangChain + LangGraph bridge companion
 - [`phionyx-mcp-server`](https://github.com/halvrenofviryel/phionyx-mcp-server) — MCP trust boundary companion
-- [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) — agent self-claim gate companion (the component the CG-L0…CG-L5 ladder rates)
+- [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) — agent self-claim gate companion (records each self-claim as an AIREP evidence record)
 - [`phionyx-eval-inspect`](https://github.com/halvrenofviryel/phionyx-eval-inspect) — Inspect AI bridge companion (interop-only; no UK AISI endorsement claim)
