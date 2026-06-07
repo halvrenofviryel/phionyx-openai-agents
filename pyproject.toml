@@ -54,7 +54,7 @@ dev = [
 
 [project.urls]
 Homepage = "https://phionyx.ai/runtime-evidence"
-Repository = "https://github.com/halvrenofviryel/phionyx_openai_agents"
+Repository = "https://github.com/halvrenofviryel/phionyx-openai-agents"
 Documentation = "https://phionyx.ai/start"
 
 [tool.setuptools.packages.find]
