@@ -201,6 +201,21 @@ def verify_chain(envelopes: list[dict[str, Any]]) -> dict[str, Any]:
 
     Returns a structured report. Does not raise.
     """
+    if not envelopes:
+        # An empty list is not a verified chain. `ok` started True and was only
+        # ever set False by an error inside the loop, so zero envelopes reported
+        # success over input nobody walked. `None` is falsy, so a caller testing
+        # truthiness fails closed. Found by the Measurement Axioms self-audit of
+        # 2026-08-01; the same defect was carried by three sibling packages.
+        return {
+            "ok": None,
+            "envelope_count": 0,
+            "errors": [],
+            "reason": "no envelopes to verify — nothing was checked",
+            "measurement_status": "NOT_MEASURED",
+            "non_measurement_cause": "input_absent",
+        }
+
     report: dict[str, Any] = {
         "ok": True,
         "envelope_count": len(envelopes),
