@@ -8,7 +8,7 @@ Every Trace and Span emitted by the OpenAI Agents SDK is recorded as a
 signed, hash-chained envelope entry. Third parties can verify the chain
 offline without trusting the agent's narration.
 
-Status: alpha (v0.1.0a1.dev0) — M1 skeleton.
+Status: alpha (v0.1.0a2.dev0) — M1 skeleton.
 
 Public surface (target API, M2)::
 
@@ -40,7 +40,7 @@ from .audit_chain import (
 )
 from .processor import PhionyxTracingProcessor
 
-__version__ = "0.1.0a1"
+__version__ = "0.1.0a2"
 __all__ = [
     "PhionyxTracingProcessor",
     "EnvelopeContext",
