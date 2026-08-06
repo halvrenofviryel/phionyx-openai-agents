@@ -4,13 +4,13 @@
 
 OpenAI Agents SDK tracing bridge for [Phionyx](https://phionyx.ai) runtime evidence. This package surfaces on [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) as one of the framework adapters that turn third-party agent runs into reviewer-runnable evidence.
 
-Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is recorded as a signed, hash-chained envelope entry. Phionyx provides the trust-object substrate above the SDK's own tracing — observability records *what happened*, Phionyx makes it *verifiable*.
+Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is recorded as a signed, hash-chained envelope entry. Phionyx provides the trust-object substrate above the SDK's own tracing — observability records *what happened*; Phionyx binds it into a hash-chained envelope that a holder of the signing key can check. No independent party has verified these records.
 
 ## Where this fits
 
 Phionyx ships three distinct things, each with its own version line:
 
-- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.8.1**): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is the **reference producer** for AIREP — the first system that emits AIREP records.
+- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.9.0**): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is the **reference producer** for AIREP — the first system that emits RGE envelopes.
 - **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (stable **v0.2.0**, alpha **v0.3.0a1**): the self-claim gate that records each agent self-claim as an AIREP evidence record.
 - **Format** — [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) (**v0.1**, experimental): a vendor-neutral open format for an **AI decision receipt** — one signed, hash-chained, offline-checkable record per runtime decision, readable by anyone and tied to no vendor. It is a *proposed* open format, not a ratified standard.
 
@@ -101,7 +101,7 @@ Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together
   (multi-span tree, parent_id chains, error spans, 100-event chain,
   concurrent callbacks, lifecycle edges, JSONL round-trip).
 
-Roadmap beyond v0.1.0a1: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (latest v0.8.1); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
+Roadmap beyond v0.1.0a1: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (latest v0.9.0); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
 
 ## audit_chain vendoring
 
@@ -115,7 +115,7 @@ AGPL-3.0-or-later. Commercial dual-license available — contact founder@phionyx
 
 - [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) — entry pillar this package surfaces under
 - [phionyx.ai/evidence](https://phionyx.ai/evidence) — Evidence Matrix: every load-bearing claim paired with a reviewer-runnable command
-- [`phionyx-core`](https://pypi.org/project/phionyx-core/) (PyPI) — core envelope schema + Ed25519 signing (the engine; latest v0.8.1)
+- [`phionyx-core`](https://pypi.org/project/phionyx-core/) (PyPI) — core envelope schema + Ed25519 signing (the engine; latest v0.9.0)
 - [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) — vendor-neutral open format for per-decision AI evidence receipts; this adapter's outputs are AIREP-shaped records
 - [`phionyx-langchain-langgraph`](https://github.com/halvrenofviryel/phionyx-langchain-langgraph) — LangChain + LangGraph bridge companion
 - [`phionyx-mcp-server`](https://github.com/halvrenofviryel/phionyx-mcp-server) — MCP trust boundary companion
