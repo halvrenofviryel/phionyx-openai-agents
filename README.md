@@ -18,7 +18,7 @@ Phionyx ships three distinct things, each with its own version line:
 
 ## Why
 
-The OpenAI Agents SDK ships its own tracing (`add_trace_processor`, `BatchTraceProcessor`, `BackendSpanExporter`) optimised for *debugging* and *internal observability*. It is not optimised for *third-party verification*: the trace stream is mutable, unsigned, and exported to the operator's choice of backend. Phionyx envelopes are immutable, hash-chained, and signed under the operator's Ed25519 key — they survive review even when the agent and the trace store are not trusted.
+The OpenAI Agents SDK ships its own tracing (`add_trace_processor`, `BatchTraceProcessor`, `BackendSpanExporter`) optimised for *debugging* and *internal observability*. It is not optimised for *third-party verification*: the trace stream is mutable, unsigned, and exported to the operator's choice of backend. Phionyx envelopes are append-only, hash-chained, and signed under the operator's key (Ed25519-capable; the demo default is HMAC) — they survive review even when the agent and the trace store are not trusted.
 
 ## Install
 
