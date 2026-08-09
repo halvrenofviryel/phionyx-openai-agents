@@ -79,6 +79,87 @@ class HmacSigner:
         return f"hmac-sha256:{digest}"
 
 
+# ── WP-13 — honest signer contract (mirrors phionyx-mcp-server WP-11) ───────
+# Selected by env (get_signer), never silently defaulting to the demo secret in a real run:
+#   PHIONYX_OPENAI_AGENTS_SIGNING_KEY set -> Ed25519Signer  (real asymmetric signature)
+#   PHIONYX_OPENAI_AGENTS_DEMO=1          -> HmacSigner      (E0; the secret ships in-package)
+#   neither                               -> UnsignedSigner  (alg='unsigned'; no signature performed)
+_ED25519_PREFIX = "ed25519:"
+
+
+def signature_algorithm(signature: str) -> str:
+    """The algorithm a signature string declares, by prefix. Absent/empty/sentinel -> 'unsigned'."""
+    if not isinstance(signature, str) or signature == "" or signature == "unsigned":
+        return "unsigned"
+    if ":" in signature:
+        return signature.split(":", 1)[0]
+    return "unknown"
+
+
+class UnsignedSigner:
+    """No signature is performed. Emits the sentinel 'unsigned' so the envelope records,
+    unambiguously, that it carries no cryptographic authorship — never a silent demo signature
+    standing in for a missing production key. Evidence level E0 (no signature at all)."""
+
+    algorithm = "unsigned"
+    key_id: str | None = None
+
+    def sign(self, current_hash: str) -> str:
+        return "unsigned"
+
+
+class Ed25519Signer:
+    """Production signer. Holds an Ed25519 private key (32-byte seed, hex) and signs the
+    ``integrity.current`` string. Signature format: ``ed25519:<128-hex>``."""
+
+    algorithm = "ed25519"
+
+    def __init__(self, private_key_hex: str, key_id: str = "phionyx-openai-agents-ed25519") -> None:
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+        self._sk = Ed25519PrivateKey.from_private_bytes(bytes.fromhex(private_key_hex))
+        self.key_id = key_id
+
+    def sign(self, current_hash: str) -> str:
+        return _ED25519_PREFIX + self._sk.sign(current_hash.encode("utf-8")).hex()
+
+    @property
+    def public_key_hex(self) -> str:
+        from cryptography.hazmat.primitives import serialization
+
+        return self._sk.public_key().public_bytes(
+            serialization.Encoding.Raw, serialization.PublicFormat.Raw).hex()
+
+
+def _load_key_material(key: str) -> str:
+    """Resolve a key argument to hex: a path to a key file (last non-comment line) or a bare hex."""
+    from pathlib import Path
+
+    p = Path(key).expanduser()
+    if p.exists():
+        lines = [s for ln in p.read_text().splitlines() if (s := ln.strip()) and not s.startswith("#")]
+        return lines[-1] if lines else ""
+    return key.strip()
+
+
+def get_signer() -> Signer:
+    """Select the signer from the environment — never a silent demo signature in a real run.
+
+    ``PHIONYX_OPENAI_AGENTS_SIGNING_KEY`` (path or hex) -> Ed25519Signer (key_id via
+    ``PHIONYX_OPENAI_AGENTS_KEY_ID``). Else ``PHIONYX_OPENAI_AGENTS_DEMO=1`` -> HmacSigner (E0).
+    Else -> UnsignedSigner. A real run with no key provisioned emits explicitly UNSIGNED
+    envelopes rather than demo-signed ones that look real."""
+    import os
+
+    key = os.environ.get("PHIONYX_OPENAI_AGENTS_SIGNING_KEY")
+    if key:
+        return Ed25519Signer(_load_key_material(key),
+                             key_id=os.environ.get("PHIONYX_OPENAI_AGENTS_KEY_ID", "phionyx-openai-agents-ed25519"))
+    if os.environ.get("PHIONYX_OPENAI_AGENTS_DEMO") == "1":
+        return HmacSigner()
+    return UnsignedSigner()
+
+
 class EnvelopeStore(Protocol):
     """Persistence interface for envelope chains."""
 
@@ -163,7 +244,7 @@ class FilesystemEnvelopeStore:
 
 @dataclass
 class EnvelopeContext:
-    """All inputs needed to build one signed envelope from an SDK event."""
+    """All inputs needed to build one envelope (signed by the given signer) from an SDK event."""
 
     trace_id: str
     turn_index: int
@@ -173,7 +254,7 @@ class EnvelopeContext:
 
 
 def build_envelope(ctx: EnvelopeContext, *, previous_hash: str, signer: Signer) -> dict[str, Any]:
-    """Build a signed, chain-linked envelope from an AgentMessageEnvelope payload."""
+    """Build a chain-linked envelope (signed by the given signer) from an AgentMessageEnvelope payload."""
     payload: dict[str, Any] = {
         "schema": SCHEMA,
         "subject": {

@@ -4,7 +4,7 @@
 
 OpenAI Agents SDK tracing bridge for [Phionyx](https://phionyx.ai) runtime evidence. This package surfaces on [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) as one of the framework adapters that turn third-party agent runs into reviewer-runnable evidence.
 
-Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is recorded as a signed, hash-chained envelope entry. Phionyx provides the trust-object substrate above the SDK's own tracing — observability records *what happened*; Phionyx binds it into a hash-chained envelope that a holder of the signing key can check. No independent party has verified these records.
+Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is recorded as a hash-chained envelope entry (signed when a signer is configured; unsigned by default). Phionyx provides the trust-object substrate above the SDK's own tracing — observability records *what happened*; Phionyx binds it into a hash-chained envelope that a holder of the signing key can check. No independent party has verified these records.
 
 ## Where this fits
 
@@ -35,12 +35,12 @@ Source: [github.com/halvrenofviryel/phionyx-openai-agents](https://github.com/ha
 from agents import add_trace_processor
 from phionyx_openai_agents import PhionyxTracingProcessor
 
-processor = PhionyxTracingProcessor()    # default HmacSigner + filesystem store
+processor = PhionyxTracingProcessor()    # UNSIGNED by default — set PHIONYX_OPENAI_AGENTS_DEMO=1 (demo-HMAC) or PHIONYX_OPENAI_AGENTS_SIGNING_KEY=<hex> (Ed25519); + filesystem store
 add_trace_processor(processor)
 
 # ... run any Agents SDK workflow ...
 
-print(f"{len(processor.envelopes)} signed envelopes")
+print(f"{len(processor.envelopes)} envelopes (unsigned by default; configure a signer to sign)")
 print(f"Chain verifies: {processor.verify_chain()['ok']}")
 processor.export_envelopes("evidence/run.jsonl")
 ```
@@ -82,7 +82,7 @@ Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together
 
 - ✅ **PhionyxTracingProcessor** — all 6 SDK `TracingProcessor` methods
   (`on_trace_start/end`, `on_span_start/end`, `shutdown`, `force_flush`)
-  emit signed envelopes.
+  emit hash-chained envelopes (signed when a signer is configured).
 - ✅ **AgentMessageEnvelope** as the inner record (from
   `phionyx_core.contracts.envelopes`).
 - ✅ **HmacSigner** demo + **Signer** protocol for Ed25519 swap.

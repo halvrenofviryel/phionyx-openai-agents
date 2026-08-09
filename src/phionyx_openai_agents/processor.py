@@ -4,7 +4,7 @@ M2 status: envelope-emitting. Each SDK callback event becomes:
     1. An ``AgentMessageEnvelope`` from ``phionyx_core.contracts.envelopes``
        capturing trace_id, turn_id, message_id, timestamp_utc, nonce,
        payload (event_type + SDK trace_id + SDK span_id + serialized data).
-    2. A signed, hash-chained outer envelope (see ``audit_chain.py``) that
+    2. A hash-chained outer envelope (see ``audit_chain.py``), signed when a signer is configured, that
        links the message to its predecessor in the chain and is signed by
        the operator's Signer.
 
@@ -40,6 +40,7 @@ from .audit_chain import (
     HmacSigner,
     Signer,
     build_envelope,
+    get_signer,
     canonical_json,
     verify_chain,
 )
@@ -72,7 +73,7 @@ class _PendingEvent:
 
 
 class PhionyxTracingProcessor:
-    """OpenAI Agents SDK TracingProcessor that emits signed Phionyx envelopes per event.
+    """OpenAI Agents SDK TracingProcessor that emits hash-chained Phionyx envelopes (signed when a signer is configured) per event.
 
     Parameters
     ----------
@@ -86,7 +87,9 @@ class PhionyxTracingProcessor:
         Reserved for Ed25519. M2 ships :class:`HmacSigner` (demo).
         Pass a custom :class:`Signer` via ``signer=`` to override.
     signer:
-        Custom :class:`Signer`. Defaults to ``HmacSigner()``.
+        Custom :class:`Signer`. Defaults to ``get_signer()`` — env-selected
+        (``PHIONYX_OPENAI_AGENTS_SIGNING_KEY`` → Ed25519; ``PHIONYX_OPENAI_AGENTS_DEMO=1`` →
+        HmacSigner; else ``UnsignedSigner``, never a silent demo signature).
     store:
         Custom :class:`EnvelopeStore`. Defaults to
         :class:`FilesystemEnvelopeStore` rooted at
@@ -119,7 +122,7 @@ class PhionyxTracingProcessor:
     ) -> None:
         self.trace_id = trace_id or f"phionyx-openai-agents-{uuid.uuid4().hex[:12]}"
         self._operator_signing_key = operator_signing_key
-        self._signer: Signer = signer or HmacSigner()
+        self._signer: Signer = signer or get_signer()
         self._store: EnvelopeStore = store or FilesystemEnvelopeStore()
         self._sender = sender or _DEFAULT_SENDER
         self._receiver = receiver or _DEFAULT_RECEIVER
@@ -151,7 +154,7 @@ class PhionyxTracingProcessor:
     # --- core emission ------------------------------------------------------
 
     def _record_and_emit(self, event_type: str, obj_id: str, payload: dict[str, Any]) -> None:
-        """Record the event and emit a signed envelope into the chain."""
+        """Record the event and emit an envelope (signed when a signer is configured) into the chain."""
         with self._lock:
             now_iso = datetime.now(timezone.utc).isoformat()
             self._events.append(

@@ -5,7 +5,8 @@ phionyx-openai-agents
 OpenAI Agents SDK tracing bridge for Phionyx runtime evidence.
 
 Every Trace and Span emitted by the OpenAI Agents SDK is recorded as a
-signed, hash-chained envelope entry. Third parties can verify the chain
+hash-chained envelope entry (signed when a signer is configured; unsigned by
+default). Third parties can verify the chain
 offline without trusting the agent's narration.
 
 Status: alpha (v0.1.0a2.dev0) — M1 skeleton.
