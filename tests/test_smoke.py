@@ -35,7 +35,7 @@ def _make_processor(trace_id: str | None = None):
 def test_package_imports() -> None:
     import phionyx_openai_agents as pkg
 
-    assert pkg.__version__.startswith("0.1.0a2")
+    assert pkg.__version__.startswith("0.1.0a3")
     assert hasattr(pkg, "PhionyxTracingProcessor")
     assert hasattr(pkg, "FilesystemEnvelopeStore")
     assert hasattr(pkg, "HmacSigner")

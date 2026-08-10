@@ -1,6 +1,6 @@
 # phionyx-openai-agents
 
-> **Status:** alpha (v0.1.0a1) — live on PyPI. TracingProcessor adapter live; 37 tests pass.
+> **Status:** alpha (v0.1.0a3). TracingProcessor adapter implemented; 37 tests pass.
 
 OpenAI Agents SDK tracing bridge for [Phionyx](https://phionyx.ai) runtime evidence. This package surfaces on [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) as one of the framework adapters that turn third-party agent runs into reviewer-runnable evidence.
 
