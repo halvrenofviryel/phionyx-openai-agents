@@ -1,6 +1,6 @@
 # phionyx-openai-agents
 
-> **Status:** alpha (v0.1.0a3). TracingProcessor adapter implemented; 37 tests pass.
+> **Status:** alpha (v0.1.0a3). TracingProcessor adapter implemented; a unit + integration test suite passes.
 
 OpenAI Agents SDK tracing bridge for [Phionyx](https://phionyx.ai) runtime evidence. This package surfaces on [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) as one of the framework adapters that turn third-party agent runs into reviewer-runnable evidence.
 
@@ -10,11 +10,11 @@ Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.githu
 
 Phionyx ships three distinct things, each with its own version line:
 
-- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.9.0**): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is the developed alongside AIREP; a conformant projection between the two is **not implemented** (measured 2026-08-06: AIREP's own reference verifier rejects an RGE envelope handed to it directly).
+- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.9.0**): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is developed alongside AIREP; a conformant projection between the two is **not implemented** (measured 2026-08-06: AIREP's own reference verifier rejects an RGE envelope handed to it directly).
 - **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (stable **v0.2.0**, alpha **v0.3.0a1**): the self-claim gate that records each agent self-claim as an AIREP evidence record.
 - **Format** — [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) (**v0.1**, experimental): a vendor-neutral open format for an **AI decision receipt** — one signed, hash-chained, offline-checkable record per runtime decision, readable by anyone and tied to no vendor. It is a *proposed* open format, not a ratified standard.
 
-**This package is an *adapter*** (its own version line: **v0.1.0a1**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the AIREP format itself — it produces AIREP-shaped evidence records from SDK traces.
+**This package is an *adapter*** (its own version line: **v0.1.0a3**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the AIREP format itself — it produces AIREP-shaped evidence records from SDK traces.
 
 ## Why
 
@@ -78,7 +78,7 @@ on_trace_end(trace)
 
 Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together with `trace_id` you can reconstruct any tree shape offline without reading the SDK's own trace stream.
 
-## Status — what's live in v0.1.0a1
+## Status — what's live in v0.1.0a3
 
 - ✅ **PhionyxTracingProcessor** — all 6 SDK `TracingProcessor` methods
   (`on_trace_start/end`, `on_span_start/end`, `shutdown`, `force_flush`)
@@ -97,11 +97,11 @@ Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together
   objects degrade to `unknown` / `None`, never crash.
 - ✅ **`register()` defers SDK import** — package loads cleanly
   without `openai-agents` installed.
-- ✅ **37 tests** — smoke, envelope chain, extended scenarios
+- ✅ **Unit + integration test suite** — smoke, envelope chain, extended scenarios
   (multi-span tree, parent_id chains, error spans, 100-event chain,
   concurrent callbacks, lifecycle edges, JSONL round-trip).
 
-Roadmap beyond v0.1.0a1: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (latest v0.9.0); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
+Roadmap beyond v0.1.0a3: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (latest v0.9.0); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
 
 ## audit_chain vendoring
 
