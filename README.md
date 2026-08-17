@@ -119,5 +119,5 @@ AGPL-3.0-or-later. Commercial dual-license available — contact founder@phionyx
 - [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) — vendor-neutral open format for per-decision AI evidence receipts; this adapter's outputs are AIREP-shaped records
 - [`phionyx-langchain-langgraph`](https://github.com/halvrenofviryel/phionyx-langchain-langgraph) — LangChain + LangGraph bridge companion
 - [`phionyx-mcp-server`](https://github.com/halvrenofviryel/phionyx-mcp-server) — MCP trust boundary companion
-- [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) — agent self-claim gate companion (records each self-claim as an AIREP evidence record)
+- [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) — agent self-claim gate companion (records each self-claim as an RGE evidence record)
 - [`phionyx-eval-inspect`](https://github.com/halvrenofviryel/phionyx-eval-inspect) — Inspect AI bridge companion (interop-only; no UK AISI endorsement claim)
