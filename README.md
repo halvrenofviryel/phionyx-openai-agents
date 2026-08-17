@@ -11,7 +11,7 @@ Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.githu
 Phionyx ships three distinct things, each with its own version line:
 
 - **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (current release on PyPI): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is developed alongside AIREP; a conformant projection between the two is **not implemented** (measured 2026-08-06: AIREP's own reference verifier rejects an RGE envelope handed to it directly).
-- **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (stable **v0.2.0**, alpha **v0.3.0a1**): the self-claim gate that records each agent self-claim as an AIREP evidence record.
+- **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (current release on PyPI): the self-claim gate that records each agent self-claim as an RGE evidence record.
 - **Format** — [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) (**v0.1**, experimental): a vendor-neutral open format for an **AI decision receipt** — one signed, hash-chained, offline-checkable record per runtime decision, readable by anyone and tied to no vendor. It is a *proposed* open format, not a ratified standard.
 
 **This package is an *adapter*** (its own version line: **v0.1.0a3**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the AIREP format itself — it produces AIREP-shaped evidence records from SDK traces.
