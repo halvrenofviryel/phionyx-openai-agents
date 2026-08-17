@@ -10,7 +10,7 @@ Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.githu
 
 Phionyx ships three distinct things, each with its own version line:
 
-- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (latest **v0.9.0**): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is developed alongside AIREP; a conformant projection between the two is **not implemented** (measured 2026-08-06: AIREP's own reference verifier rejects an RGE envelope handed to it directly).
+- **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (current release on PyPI): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is developed alongside AIREP; a conformant projection between the two is **not implemented** (measured 2026-08-06: AIREP's own reference verifier rejects an RGE envelope handed to it directly).
 - **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (stable **v0.2.0**, alpha **v0.3.0a1**): the self-claim gate that records each agent self-claim as an AIREP evidence record.
 - **Format** — [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) (**v0.1**, experimental): a vendor-neutral open format for an **AI decision receipt** — one signed, hash-chained, offline-checkable record per runtime decision, readable by anyone and tied to no vendor. It is a *proposed* open format, not a ratified standard.
 
@@ -101,7 +101,7 @@ Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together
   (multi-span tree, parent_id chains, error spans, 100-event chain,
   concurrent callbacks, lifecycle edges, JSONL round-trip).
 
-Roadmap beyond v0.1.0a3: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (latest v0.9.0); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
+Roadmap beyond v0.1.0a3: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (current release on PyPI); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
 
 ## audit_chain vendoring
 
@@ -115,7 +115,7 @@ AGPL-3.0-or-later. Commercial dual-license available — contact founder@phionyx
 
 - [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) — entry pillar this package surfaces under
 - [phionyx.ai/evidence](https://phionyx.ai/evidence) — Evidence Matrix: every load-bearing claim paired with a reviewer-runnable command
-- [`phionyx-core`](https://pypi.org/project/phionyx-core/) (PyPI) — core envelope schema + Ed25519 signing (the engine; latest v0.9.0)
+- [`phionyx-core`](https://pypi.org/project/phionyx-core/) (PyPI) — core envelope schema + Ed25519 signing (the engine; current release on PyPI)
 - [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) — vendor-neutral open format for per-decision AI evidence receipts; this adapter's outputs are AIREP-shaped records
 - [`phionyx-langchain-langgraph`](https://github.com/halvrenofviryel/phionyx-langchain-langgraph) — LangChain + LangGraph bridge companion
 - [`phionyx-mcp-server`](https://github.com/halvrenofviryel/phionyx-mcp-server) — MCP trust boundary companion
