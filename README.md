@@ -12,9 +12,9 @@ Phionyx ships three distinct things, each with its own version line:
 
 - **Engine** — [`phionyx-core`](https://pypi.org/project/phionyx-core/) (current release on PyPI): the deterministic runtime (46-block canonical pipeline, signed audit chain). Its Reasoned Governance Envelope (RGE) is developed alongside AIREP; a conformant projection between the two is **not implemented** (measured 2026-08-06: AIREP's own reference verifier rejects an RGE envelope handed to it directly).
 - **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (current release on PyPI): the self-claim gate that records each agent self-claim as an RGE evidence record.
-- **Format** — [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) (**v0.1**, experimental): a vendor-neutral open format for an **AI decision receipt** — one signed, hash-chained, offline-checkable record per runtime decision, readable by anyone and tied to no vendor. It is a *proposed* open format, not a ratified standard.
+- **Format** — [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) (**v0.2.0-beta.1**, experimental prerelease; v0.1 frozen and supported): a vendor-neutral open format for an **AI decision receipt** — one signed, hash-chained, offline-checkable record per runtime decision, readable by anyone and tied to no vendor. It is a *proposed* open format, not a ratified standard. AIREP v0.2.0-beta.1 was published on 9 September 2026 as an experimental prerelease: it ships a first-party Python producer for Decision, Control, Execution and Effect artifacts, runnable lifecycle examples and structured reconciliation; the v0.1 line remains frozen and supported. External implementation results are version- and role-specific — an independently authored producer measured against frozen v0.1.2, and an independently implemented consumer/verifier measured against an earlier v0.2 handoff — and they do not establish same-beta producer-to-consumer interoperability.
 
-**This package is an *adapter*** (its own version line: **v0.1.0a3**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the AIREP format itself — it produces AIREP-shaped evidence records from SDK traces.
+**This package is an *adapter*** (its own version line: **v0.1.0a3**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the AIREP format itself — it produces Phionyx envelope records (the adapter's native schema) from SDK traces; it does not produce AIREP records, and similar fields do not establish AIREP conformance.
 
 ## Why
 
@@ -92,9 +92,9 @@ Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together
 - ✅ **`export_envelopes`** — JSONL round-trip preserves chain
   byte-exact and re-verifies under module-level helper.
 - ✅ **Cross-thread emission lock** — 5-thread × 20-callback test
-  yields a dense `[0..99]` turn-index sequence; no race conditions.
+  yields a dense `[0..99]` turn-index sequence in that test — no ordering gaps observed under the tested contention, which is not a general absence of race conditions.
 - ✅ **Defensive serialization** — minimally-attributed Trace/Span
-  objects degrade to `unknown` / `None`, never crash.
+  objects degrade to `unknown` / `None` without raising in the covered cases.
 - ✅ **`register()` defers SDK import** — package loads cleanly
   without `openai-agents` installed.
 - ✅ **Unit + integration test suite** — smoke, envelope chain, extended scenarios
@@ -116,7 +116,7 @@ AGPL-3.0-or-later. Commercial dual-license available — contact founder@phionyx
 - [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) — entry pillar this package surfaces under
 - [phionyx.ai/evidence](https://phionyx.ai/evidence) — Evidence Matrix: every load-bearing claim paired with a reviewer-runnable command
 - [`phionyx-core`](https://pypi.org/project/phionyx-core/) (PyPI) — core envelope schema + Ed25519 signing (the engine; current release on PyPI)
-- [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) — vendor-neutral open format for per-decision AI evidence receipts; this adapter's outputs are AIREP-shaped records
+- [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) — vendor-neutral open format for per-decision AI evidence receipts; this adapter's outputs are Phionyx envelope records, not AIREP records
 - [`phionyx-langchain-langgraph`](https://github.com/halvrenofviryel/phionyx-langchain-langgraph) — LangChain + LangGraph bridge companion
 - [`phionyx-mcp-server`](https://github.com/halvrenofviryel/phionyx-mcp-server) — MCP trust boundary companion
 - [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) — agent self-claim gate companion (records each self-claim as an RGE evidence record)
