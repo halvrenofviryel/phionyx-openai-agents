@@ -1,19 +1,10 @@
-"""Quickstart: capture signed runtime evidence for an OpenAI Agents SDK workflow.
+"""Mock Trace/Span quickstart (no SDK or model invocation).
 
-This demo exercises every event type the v0.1.0a1 processor supports —
-trace_start, span_start (root + child), span_end, trace_end, plus the
-lifecycle markers force_flush and shutdown — and writes a verifiable
-evidence chain to disk.
+This exercises processor callbacks with hand-built objects, whether or not
+openai-agents is installed. It is not an SDK integration test. Envelopes are
+unsigned unless the caller explicitly configures a signer.
 
-If the ``openai-agents`` SDK is installed, the demo uses real Trace /
-Span objects. If not, it falls back to mocked objects matching the
-documented SDK attribute shape. Either path produces the same envelope
-schema, so verifiers do not care which mode the chain was produced in.
-
-Run::
-
-    pip install -e tools/phionyx_openai_agents
-    python tools/phionyx_openai_agents/examples/quickstart.py
+Run from the repository after installation: python examples/quickstart.py
 """
 
 from __future__ import annotations
@@ -49,14 +40,6 @@ class _MockSpan:
         self.span_data = None
 
 
-def _detect_sdk() -> bool:
-    try:
-        import agents  # type: ignore  # noqa: F401
-        return True
-    except ImportError:
-        return False
-
-
 def main() -> None:
     audit_root = Path(tempfile.mkdtemp(prefix="phionyx-oai-demo-"))
     processor = PhionyxTracingProcessor(
@@ -64,11 +47,10 @@ def main() -> None:
         store=FilesystemEnvelopeStore(root=audit_root),
     )
 
-    sdk_present = _detect_sdk()
-    mode = "real SDK" if sdk_present else "mocked Trace/Span"
+    mode = "mocked Trace/Span"
     print(f"Mode        : {mode}")
 
-    # Either path produces the same emission sequence: trace_start →
+    # The mock callback sequence: trace_start →
     # span_start (root) → span_start (child) → span_end (child) →
     # span_end (root) → force_flush → trace_end → shutdown.
     trace = _MockTrace(trace_id="trace-demo-001")
@@ -89,8 +71,10 @@ def main() -> None:
 
     report = processor.verify_chain()
     status = "OK" if report["ok"] else "FAILED"
-    print(f"Verify chain: {status} ({report['envelope_count']} envelopes; "
+    print(f"Hash chain  : {status} ({report['envelope_count']} envelopes; "
           f"{len(report['errors'])} errors)")
+
+    print("Signatures  : NOT_EVALUATED (hash check only)")
 
     export_path = audit_root / "quickstart-evidence.jsonl"
     exported = processor.export_envelopes(export_path)

@@ -35,7 +35,8 @@ def _make_processor(trace_id: str | None = None):
 def test_package_imports() -> None:
     import phionyx_openai_agents as pkg
 
-    assert pkg.__version__.startswith("0.1.0a3")
+    from importlib.metadata import version
+    assert pkg.__version__ == version("phionyx-openai-agents")
     assert hasattr(pkg, "PhionyxTracingProcessor")
     assert hasattr(pkg, "FilesystemEnvelopeStore")
     assert hasattr(pkg, "HmacSigner")
@@ -175,10 +176,13 @@ def test_events_property_returns_copy() -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_register_without_sdk_raises_clear_error() -> None:
+def test_register_without_sdk_raises_clear_error(monkeypatch, tmp_path) -> None:
     """register() defers SDK import; without SDK it raises ImportError with a clear hint."""
     from phionyx_openai_agents import PhionyxTracingProcessor
 
-    p = PhionyxTracingProcessor()
+    import sys
+    from phionyx_openai_agents import FilesystemEnvelopeStore
+    monkeypatch.setitem(sys.modules, "agents", None)
+    p = PhionyxTracingProcessor(store=FilesystemEnvelopeStore(root=tmp_path))
     with pytest.raises(ImportError, match="openai-agents"):
         p.register()

@@ -278,9 +278,14 @@ def build_envelope(ctx: EnvelopeContext, *, previous_hash: str, signer: Signer) 
 
 
 def verify_chain(envelopes: list[dict[str, Any]]) -> dict[str, Any]:
-    """Verify hash-chain continuity + signature consistency over a list of envelopes.
+    """Check payload hashes, link continuity and turn order only.
 
-    Returns a structured report. Does not raise.
+    ``ok`` is the backward-compatible hash-chain result, NOT authentication.
+    Signatures, signer identity, capture completeness and external anchoring
+    are not checked. An attacker can rewrite and rehash a whole unanchored
+    chain. Ed25519 authentication needs a separate verifier and a trusted
+    public key; it never requires disclosure of the private signing key.
+    Empty input is NOT_MEASURED (``ok=None``).
     """
     if not envelopes:
         # An empty list is not a verified chain. `ok` started True and was only
@@ -290,6 +295,8 @@ def verify_chain(envelopes: list[dict[str, Any]]) -> dict[str, Any]:
         # 2026-08-01; the same defect was carried by three sibling packages.
         return {
             "ok": None,
+            "verification_scope": "HASH_CHAIN_ONLY",
+            "signature_verification": "NOT_EVALUATED",
             "envelope_count": 0,
             "errors": [],
             "reason": "no envelopes to verify — nothing was checked",
@@ -299,6 +306,8 @@ def verify_chain(envelopes: list[dict[str, Any]]) -> dict[str, Any]:
 
     report: dict[str, Any] = {
         "ok": True,
+        "verification_scope": "HASH_CHAIN_ONLY",
+        "signature_verification": "NOT_EVALUATED",
         "envelope_count": len(envelopes),
         "errors": [],
     }

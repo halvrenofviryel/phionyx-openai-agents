@@ -1,10 +1,10 @@
 # phionyx-openai-agents
 
-> **Status:** alpha (v0.1.0a3). TracingProcessor adapter implemented; a unit + integration test suite passes.
+> **Status:** alpha (v0.1.0a4). TracingProcessor adapter implemented; a unit + integration test suite passes.
 
 OpenAI Agents SDK tracing bridge for [Phionyx](https://phionyx.ai) runtime evidence. This package surfaces on [phionyx.ai/runtime-evidence](https://phionyx.ai/runtime-evidence) as one of the framework adapters that turn third-party agent runs into reviewer-runnable evidence.
 
-Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is recorded as a hash-chained envelope entry (signed when a signer is configured; unsigned by default). Phionyx provides the trust-object substrate above the SDK's own tracing — observability records *what happened*; Phionyx binds it into a hash-chained envelope that a holder of the signing key can check. No independent party has verified these records.
+Every `Trace` and `Span` emitted by the [OpenAI Agents SDK](https://openai.github.io/openai-agents-python/) is recorded as a hash-chained envelope entry (signed when a signer is configured; unsigned by default). Phionyx provides the trust-object substrate above the SDK's own tracing — observability records *what happened*; Phionyx binds it into a hash-chained envelope with an optional signature. No independent party has verified these records.
 
 ## Where this fits
 
@@ -14,11 +14,23 @@ Phionyx ships three distinct things, each with its own version line:
 - **Gate** — [`phionyx-pipeline-mcp`](https://github.com/halvrenofviryel/phionyx-pipeline-mcp) (current release on PyPI): the self-claim gate that records each agent self-claim as an RGE evidence record.
 - **Format** — [`ai-runtime-evidence-protocol` (AIREP)](https://github.com/halvrenofviryel/ai-runtime-evidence-protocol) (experimental prerelease published 9 September 2026; the v0.1 line frozen and supported): a vendor-neutral open format for an **AI decision receipt** — one signed, hash-chained, offline-checkable record per runtime decision, readable by anyone and tied to no vendor. It is a *proposed* open format, not a ratified standard. AIREP v0.2.0-beta.1 was published on 9 September 2026 as an experimental prerelease: it ships a first-party Python producer for Decision, Control, Execution and Effect artifacts, runnable lifecycle examples and structured reconciliation; the v0.1 line remains frozen and supported. External implementation results are version- and role-specific — an independently authored producer measured against frozen v0.1.2, and an independently implemented consumer/verifier measured against an earlier v0.2 handoff — and they do not establish same-beta producer-to-consumer interoperability.
 
-**This package is an *adapter*** (its own version line: **v0.1.0a3**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the AIREP format itself — it produces Phionyx envelope records (the adapter's native schema) from SDK traces; it does not produce AIREP records, and similar fields do not establish AIREP conformance.
+**This package is an *adapter*** (its own version line: **v0.1.0a4**). It bridges the OpenAI Agents SDK into the Phionyx envelope format. It is not the engine, the gate, or the AIREP format itself — it produces Phionyx envelope records (the adapter's native schema) from SDK traces; it does not produce AIREP records, and similar fields do not establish AIREP conformance.
 
 ## Why
 
-The OpenAI Agents SDK ships its own tracing (`add_trace_processor`, `BatchTraceProcessor`, `BackendSpanExporter`) optimised for *debugging* and *internal observability*. It is not optimised for *third-party verification*: the trace stream is mutable, unsigned, and exported to the operator's choice of backend. Phionyx envelopes are append-only, hash-chained, and signed under the operator's key (Ed25519-capable; the demo default is HMAC) — they survive review even when the agent and the trace store are not trusted.
+The OpenAI Agents SDK ships its own tracing (`add_trace_processor`, `BatchTraceProcessor`, `BackendSpanExporter`) optimised for *debugging* and *internal observability*. It is not optimised for *third-party verification*: the trace stream is mutable, unsigned, and exported to the operator's choice of backend. Phionyx envelopes link recorded payload hashes. They are unsigned by default; Ed25519 signing or demo-only HMAC must be explicitly configured. Hash checks alone do not authenticate an operator or prevent a party from rewriting and rehashing the whole chain.
+
+## Verification boundary
+
+`verify_chain()` checks payload hashes, previous-hash links and turn order.
+Its legacy `ok` field refers **only** to those checks. Every report now also
+returns `verification_scope: HASH_CHAIN_ONLY` and
+`signature_verification: NOT_EVALUATED`, including failures and empty input.
+A signature-only edit does not change the hash result; no signature is checked.
+Empty input returns `ok: null` / `NOT_MEASURED`, never PASS.
+For Ed25519 authentication a separate verifier must check the signature against
+a trusted public key. Capture completeness and truth need additional evidence.
+These adapter envelopes are not native AIREP artifacts.
 
 ## Install
 
@@ -41,7 +53,7 @@ add_trace_processor(processor)
 # ... run any Agents SDK workflow ...
 
 print(f"{len(processor.envelopes)} envelopes (unsigned by default; configure a signer to sign)")
-print(f"Chain verifies: {processor.verify_chain()['ok']}")
+print(f"Hash chain checks: {processor.verify_chain()['ok']}")
 processor.export_envelopes("evidence/run.jsonl")
 ```
 
@@ -57,7 +69,7 @@ Expected output (mocked-SDK mode):
 
     Mode        : mocked Trace/Span
     Envelopes   : 8 ({'trace_start': 1, 'span_start': 2, 'span_end': 2, 'processor_flush': 1, 'trace_end': 1, 'processor_shutdown': 1})
-    Verify chain: OK (8 envelopes; 0 errors)
+    Hash chain  : OK (8 envelopes; 0 errors)
     Exported    : 8 envelopes → /tmp/phionyx-oai-demo-XXXXXXXX/quickstart-evidence.jsonl
 
 ## Span trees
@@ -78,7 +90,7 @@ on_trace_end(trace)
 
 Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together with `trace_id` you can reconstruct any tree shape offline without reading the SDK's own trace stream.
 
-## Status — what's live in v0.1.0a3
+## Status — what's live in v0.1.0a4
 
 - ✅ **PhionyxTracingProcessor** — all 6 SDK `TracingProcessor` methods
   (`on_trace_start/end`, `on_span_start/end`, `shutdown`, `force_flush`)
@@ -101,7 +113,7 @@ Each `span_start` envelope's payload exposes `parent_id` and `span_id`; together
   (multi-span tree, parent_id chains, error spans, 100-event chain,
   concurrent callbacks, lifecycle edges, JSONL round-trip).
 
-Roadmap beyond v0.1.0a3: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (current release on PyPI); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
+Roadmap beyond v0.1.0a4: a v0.1.0 stable release that locks the envelope schema against the current `phionyx-core` (current release on PyPI); and promotion of `audit_chain` into `phionyx-core` so all companion packages share one canonical implementation (see below).
 
 ## audit_chain vendoring
 
