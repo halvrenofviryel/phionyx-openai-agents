@@ -72,6 +72,8 @@ def test_trace_start_emits_one_envelope(tmp_path: Path) -> None:
     assert env["subject"]["event_type"] == "trace_start"
     assert env["subject"]["turn_index"] == 0
     assert env["subject"]["runtime"] == "phionyx-openai-agents"
+    from importlib.metadata import version
+    assert env["subject"]["version"] == version("phionyx-openai-agents")
     assert "message" in env
     assert "integrity" in env
 

@@ -1,31 +1,7 @@
-"""
-phionyx-openai-agents
-=====================
+"""Phionyx callback envelopes: unsigned by default, optionally signed.
 
-OpenAI Agents SDK tracing bridge for Phionyx runtime evidence.
-
-Every Trace and Span emitted by the OpenAI Agents SDK is recorded as a
-hash-chained envelope entry (signed when a signer is configured; unsigned by
-default). Third parties can verify the chain
-offline without trusting the agent's narration.
-
-Status: alpha (v0.1.0a2.dev0) — M1 skeleton.
-
-Public surface (target API, M2)::
-
-    from agents import add_trace_processor   # OpenAI Agents SDK
-    from phionyx_openai_agents import PhionyxTracingProcessor
-
-    processor = PhionyxTracingProcessor()
-    add_trace_processor(processor)
-
-    # ... run any Agents SDK workflow ...
-
-    processor.verify_chain()
-    processor.export_envelopes("evidence.jsonl")
-
-The processor is a stub in M1 — it accepts events but does not yet emit
-envelopes. M2 wires the envelope chain.
+Alpha adapter. verify_chain checks payload hashes, links and order only;
+it does not authenticate signatures, signer identity or completeness.
 """
 
 from .audit_chain import (
@@ -41,7 +17,7 @@ from .audit_chain import (
 )
 from .processor import PhionyxTracingProcessor
 
-__version__ = "0.1.0a3"
+from ._version import __version__
 __all__ = [
     "PhionyxTracingProcessor",
     "EnvelopeContext",
